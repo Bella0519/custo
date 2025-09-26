@@ -48,4 +48,155 @@
     const quickCommonItems = ["電力", "汽油", "柴油", "紙張", "飛機"];
 
     async function loadFactors() {
-      const API_KEY_
+      const API_KEY = window.CUSTOS_CONFIG?.API_KEY || "";
+      const ALLOWED_HOST = window.CUSTOS_CONFIG?.ALLOWED_HOST || "";
+
+      if (ALLOWED_HOST && window.location.hostname !== ALLOWED_HOST) {
+        console.warn("⚠ 網域不符合，停用 API Key，只用預設數據");
+        return useFallbackData();
+      }
+      if (!API_KEY) {
+        console.error("❌ 沒有 API Key，使用預設資料");
+        return useFallbackData();
+      }
+
+      const apiURL = `https://data.moenv.gov.tw/api/v2/CFP_P_02?api_key=${API_KEY}&format=json`;
+      try {
+        const res = await fetch(apiURL);
+        if (!res.ok) throw new Error(`API 回應狀態碼：${res.status}`);
+        const data = await res.json();
+        if (!data.records) throw new Error("API 沒有回傳 records");
+
+        emissionFactors = data.records.map(r => ({
+          name: r.name,
+          unit: r.unit,
+          factor: parseFloat(r.coe),
+        }));
+        console.log(`✅ 成功載入 ${emissionFactors.length} 筆排放係數`);
+        renderQuickButtons();
+        addCustom();
+      } catch (err) {
+        console.error("❌ 無法載入 API：", err.message);
+        useFallbackData();
+      }
+    }
+
+    function useFallbackData() {
+      emissionFactors = [
+        { name: "電力", unit: "kWh", factor: 0.509 },
+        { name: "汽油", unit: "L", factor: 2.34 },
+        { name: "柴油", unit: "L", factor: 2.68 },
+        { name: "紙張", unit: "kg", factor: 1.5 },
+        { name: "飛機航程", unit: "km", factor: 0.13 },
+      ];
+      console.warn("⚠ 使用預設測試數據");
+      renderQuickButtons();
+      addCustom();
+    }
+
+    function renderQuickButtons() {
+      const container = document.getElementById("quickButtons");
+      container.innerHTML = "";
+      quickCommonItems.forEach(keyword => {
+        const match = emissionFactors.find(f => f.name.includes(keyword));
+        if (match) {
+          const btn = document.createElement("button");
+          btn.textContent = match.name;
+          btn.onclick = () => addCustom(match);
+          container.appendChild(btn);
+        }
+      });
+    }
+
+    function addCustom(selectedFactor = null) {
+      const container = document.getElementById("customItems");
+      const div = document.createElement("div");
+      div.classList.add("custom-row");
+
+      div.innerHTML = `
+        <input type="text" class="custom-keyword" placeholder="輸入關鍵字，例如 電力"
+               value="${selectedFactor ? selectedFactor.name : ''}"
+               data-factor="${selectedFactor ? selectedFactor.factor : ''}">
+        <div class="suggestions"></div>
+        <input type="number" class="custom-value" min="0" value="0" placeholder="使用量">
+        <span class="custom-unit">${selectedFactor ? selectedFactor.unit : ''}</span>
+        <button type="button" onclick="this.parentElement.remove()">刪除</button>
+      `;
+
+      container.appendChild(div);
+      setupSearch(div);
+      if (!selectedFactor) showSuggestions(div, "");
+    }
+
+    function setupSearch(row) {
+      const input = row.querySelector(".custom-keyword");
+      input.addEventListener("input", () => {
+        showSuggestions(row, input.value.trim());
+      });
+    }
+
+    function showSuggestions(row, keyword) {
+      const suggestions = row.querySelector(".suggestions");
+      suggestions.innerHTML = "";
+      const results = keyword.length > 0
+        ? emissionFactors.filter(f => f.name.includes(keyword))
+        : emissionFactors.slice(0, 10);
+
+      results.forEach(f => {
+        const option = document.createElement("div");
+        option.textContent = `${f.name} (${f.unit})`;
+        option.addEventListener("click", () => {
+          row.querySelector(".custom-keyword").value = f.name;
+          row.querySelector(".custom-unit").textContent = f.unit;
+          row.querySelector(".custom-keyword").dataset.factor = f.factor;
+          suggestions.innerHTML = "";
+        });
+        suggestions.appendChild(option);
+      });
+    }
+
+    function calculate() {
+      lastLabels = [];
+      lastValues = [];
+      lastTotal = 0;
+
+      document.querySelectorAll(".custom-row").forEach(row => {
+        const val = Number(row.querySelector(".custom-value").value);
+        const factor = Number(row.querySelector(".custom-keyword").dataset.factor || 0);
+        const name = row.querySelector(".custom-keyword").value || "未命名";
+
+        if (!isNaN(factor) && val > 0) {
+          const emission = val * factor;
+          lastTotal += emission;
+          lastLabels.push(name);
+          lastValues.push(emission);
+        }
+      });
+
+      document.getElementById("result").innerText =
+        `總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`;
+      drawChart(lastLabels, lastValues);
+    }
+
+    function drawChart(labels, values) {
+      const ctx = document.getElementById("carbonChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: "pie",
+        data: { labels, datasets: [{ data: values, backgroundColor: ['#95d5b2','#74c69d','#52b788','#40916c','#2d6a4f','#1b4332'] }] },
+        options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+      });
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+      pdf.text("Custos Carbon 碳足跡分析報告", 105, 20, { align: "center" });
+      pdf.text(`總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`, 20, 40);
+      pdf.save("碳足跡報告.pdf");
+    }
+
+    loadFactors();
+  </script>
+</body>
+</html>
