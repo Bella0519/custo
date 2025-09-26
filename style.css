@@ -1,13 +1,14 @@
+/* === 全域設定 === */
 body {
   font-family: "Noto Sans TC", sans-serif;
+  background: #f5f5f5;
   margin: 0;
   padding: 0;
   line-height: 1.6;
-  background: #f5f5f5;
   color: #333;
 }
 
-/* 導覽列 */
+/* === 導覽列 === */
 header {
   background: #2d6a4f;
   color: white;
@@ -15,6 +16,10 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
+}
+
+header h1 {
+  margin: 0;
 }
 
 header nav a {
@@ -28,7 +33,7 @@ header nav a:hover {
   text-decoration: underline;
 }
 
-/* Hero 區塊 */
+/* === Hero 區塊 === */
 .hero {
   position: relative;
   background: url("images/hero-bg.jpg") center/cover no-repeat;
@@ -67,12 +72,10 @@ header nav a:hover {
   background: #40916c;
 }
 
-/* 卡片區塊排版 */
+/* === 主要內容排版 (卡片樣式) === */
 .container {
   max-width: 1000px;
   margin: 2rem auto;
-  display: grid;
-  gap: 1.5rem;
   padding: 0 1rem;
 }
 
@@ -81,6 +84,7 @@ header nav a:hover {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -94,11 +98,109 @@ header nav a:hover {
   color: #2d6a4f;
 }
 
-.card p, .card ul {
-  margin: 0.5rem 0 0;
+/* === 計算器專用樣式 === */
+.quick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1rem;
 }
 
-/* 頁尾 */
+.quick-buttons button {
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.quick-buttons button:hover {
+  background: #40916c;
+}
+
+.custom-row {
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.custom-keyword {
+  width: 55%;
+  padding: 5px;
+}
+
+.custom-value {
+  width: 20%;
+  padding: 5px;
+  margin-left: 8px;
+}
+
+.custom-unit {
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.suggestions {
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  position: absolute;
+  background: white;
+  z-index: 10;
+  width: 55%;
+  top: 100%;
+  left: 0;
+}
+
+.suggestions div {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.suggestions div:hover {
+  background: #e6f4ea;
+}
+
+/* 計算器按鈕 */
+.compute-btn {
+  background: #40916c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.compute-btn:hover {
+  background: #2d6a4f;
+}
+
+#downloadBtn {
+  background: #2d6a4f;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  display: block;
+}
+
+#downloadBtn:hover {
+  background: #40916c;
+}
+
+/* 圖表容器 */
+#chart-container {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+/* === 頁尾 === */
 footer {
   text-align: center;
   background: #2d6a4f;
