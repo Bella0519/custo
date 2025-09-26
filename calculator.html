@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>碳足跡計算器</title>
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+  alert("請先登入才能使用碳足跡計算器");
+  window.location.href = "login.html";
+}
 
   <!-- 載入設定檔 -->
   <script src="config.js"></script>
