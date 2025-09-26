@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>會員中心 | Custos Carbon</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>會員中心</h1>
+    <nav class="main-nav">
+      <div class="nav-links">
+        <a href="index.html">首頁</a>
+        <a href="about.html">關於我們</a>
+        <a href="calculator.html">碳足跡計算器</a>
+        <a href="contact.html">聯絡我們</a>
+      </div>
+      <div class="nav-login">
+        <span id="welcome-user"></span>
+        <a href="login.html" class="login-btn">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <h2 id="welcome-text">歡迎回來！</h2>
+    <p>這裡是會員專屬的內容，可以放你的碳足跡報告、目標追蹤、積分獎勵等等。</p>
+  </main>
+
+  <footer>
+    <p>© 2025 Custos Carbon</p>
+  </footer>
+
+  <script>
+    // 如果沒登入就導回登入頁
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      alert("⚠️ 請先登入再查看會員中心");
+      window.location.href = "login.html";
+    }
+
+    // 顯示使用者名稱
+    const username = localStorage.getItem('username');
+    if (username) {
+      document.getElementById('welcome-text').textContent = `Hi, ${username}！歡迎回來`;
+      document.getElementById('welcome-user').textContent = `Hi, ${username}`;
+    }
+
+    // 登出功能
+    const loginLink = document.querySelector('.login-btn');
+    loginLink.textContent = "Logout";
+    loginLink.href = "#";
+    loginLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm("確定要登出嗎？")) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        alert("已登出");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
