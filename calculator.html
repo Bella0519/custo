@@ -4,13 +4,6 @@
   <meta charset="UTF-8">
   <title>碳足跡計算器 - Custos Carbon</title>
   <link rel="stylesheet" href="style.css">
-  <script>
-    function calculate() {
-      const km = document.getElementById("km").value;
-      const result = km * 0.12; // 假設每公里 0.12 kg CO2
-      document.getElementById("output").innerText = "你的碳排放: " + result.toFixed(2) + " kg CO2";
-    }
-  </script>
 </head>
 <body>
   <header>
@@ -34,5 +27,8 @@
   <footer>
     <p>© 2025 Custos Carbon</p>
   </footer>
+
+  <!-- 引用外部 JS -->
+  <script src="script.js"></script>
 </body>
 </html>
