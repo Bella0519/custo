@@ -16,6 +16,8 @@
         <a href="contact.html">聯絡我們</a>
       </div>
       <div class="nav-login">
+        <span id="welcome-user"></span>
+        <a href="dashboard.html" class="dashboard-link">會員中心</a>
         <a href="login.html" class="login-btn">Login</a>
       </div>
     </nav>
@@ -29,5 +31,30 @@
   <footer>
     <p>© 2025 Custos Carbon</p>
   </footer>
+
+  <script>
+    // 讀取登入狀態
+    const loginLink = document.querySelector('.login-btn');
+    const welcomeUser = document.getElementById('welcome-user');
+    const username = localStorage.getItem('username');
+
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      loginLink.textContent = "Logout";
+      loginLink.href = "#";
+      if (username) {
+        welcomeUser.textContent = `Hi, ${username}`;
+      }
+
+      loginLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (confirm("確定要登出嗎？")) {
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('username');
+          alert("已登出");
+          window.location.reload();
+        }
+      });
+    }
+  </script>
 </body>
 </html>
