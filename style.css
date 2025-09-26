@@ -16,7 +16,7 @@ header h1 {
   margin: 0;
 }
 
-/* 導覽列排版：左右分開 */
+/* 導覽列：左右分開 */
 .main-nav {
   display: flex;
   justify-content: space-between;
@@ -31,4 +31,43 @@ header h1 {
   font-weight: 500;
 }
 
-.nav-links a
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Login 按鈕 */
+.nav-login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-login .login-btn {
+  background-color: #e7aeb6;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.nav-login .login-btn:hover {
+  background-color: #e2919b;
+}
+
+/* 會員中心連結 */
+.dashboard-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.dashboard-link:hover {
+  text-decoration: underline;
+}
+
+/* 主要內容 */
+main {
+  text-align: center;
+  padding:
