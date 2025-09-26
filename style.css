@@ -1,7 +1,7 @@
 /* === 全域設定 === */
 body {
   font-family: "Noto Sans TC", sans-serif;
-  background: #f5f5f5;
+  background: #fff;
   margin: 0;
   padding: 0;
   line-height: 1.6;
@@ -10,7 +10,7 @@ body {
 
 /* === 導覽列 === */
 header {
-  background: #2d6a4f;
+  background: #ff8fab;
   color: white;
   display: flex;
   justify-content: space-between;
@@ -35,23 +35,14 @@ header nav a:hover {
 
 /* === Hero 區塊 === */
 .hero {
-  position: relative;
-  background: url("images/hero-bg.jpg") center/cover no-repeat;
+  background: #ffe5ec;
   text-align: center;
-  color: white;
-  padding: 4rem 1rem;
+  padding: 3rem 1rem;
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
+.hero h2 {
+  color: #ff6b9c;
+  font-size: 2rem;
 }
 
 .cta-buttons {
@@ -59,43 +50,48 @@ header nav a:hover {
 }
 
 .btn {
-  background: #2d6a4f;
+  background: #ff8fab;
   color: white;
   padding: 10px 20px;
   border-radius: 8px;
   text-decoration: none;
   margin: 0 5px;
   display: inline-block;
+  transition: background 0.2s ease;
+}
+
+.btn:hover {
+  background: #ff6b9c;
 }
 
 .btn.secondary {
-  background: #40916c;
+  background: #ffd6e0;
+  color: #333;
 }
 
-/* === 主要內容排版 (卡片樣式) === */
+.btn.secondary:hover {
+  background: #ffc2d1;
+}
+
+/* === 卡片樣式 === */
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 1rem;
 }
 
 .card {
-  background: white;
+  background: #fff;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   margin-bottom: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  border: 1px solid #ffd6e0;
 }
 
 .card h3 {
   margin-top: 0;
-  color: #2d6a4f;
+  color: #ff6b9c;
 }
 
 /* === 計算器專用樣式 === */
@@ -107,8 +103,8 @@ header nav a:hover {
 }
 
 .quick-buttons button {
-  background: #2d6a4f;
-  color: white;
+  background: #ffd6e0;
+  color: #333;
   border: none;
   border-radius: 8px;
   padding: 6px 12px;
@@ -117,7 +113,8 @@ header nav a:hover {
 }
 
 .quick-buttons button:hover {
-  background: #40916c;
+  background: #ff8fab;
+  color: white;
 }
 
 .custom-row {
@@ -130,12 +127,16 @@ header nav a:hover {
 .custom-keyword {
   width: 55%;
   padding: 5px;
+  border: 1px solid #ffd6e0;
+  border-radius: 5px;
 }
 
 .custom-value {
   width: 20%;
   padding: 5px;
   margin-left: 8px;
+  border: 1px solid #ffd6e0;
+  border-radius: 5px;
 }
 
 .custom-unit {
@@ -144,7 +145,7 @@ header nav a:hover {
 }
 
 .suggestions {
-  border: 1px solid #ccc;
+  border: 1px solid #ffd6e0;
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
@@ -161,27 +162,28 @@ header nav a:hover {
 }
 
 .suggestions div:hover {
-  background: #e6f4ea;
+  background: #ffe5ec;
 }
 
-/* 計算器按鈕 */
+/* 計算按鈕 */
 .compute-btn {
-  background: #40916c;
+  background: #ff8fab;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 6px;
   cursor: pointer;
   margin-top: 1rem;
+  transition: background 0.2s ease;
 }
 
 .compute-btn:hover {
-  background: #2d6a4f;
+  background: #ff6b9c;
 }
 
 #downloadBtn {
-  background: #2d6a4f;
-  color: white;
+  background: #ffd6e0;
+  color: #333;
   padding: 10px 15px;
   border: none;
   border-radius: 6px;
@@ -191,19 +193,47 @@ header nav a:hover {
 }
 
 #downloadBtn:hover {
-  background: #40916c;
+  background: #ffc2d1;
 }
 
-/* 圖表容器 */
-#chart-container {
-  margin-top: 2rem;
+/* === 登入頁面樣式 === */
+.login-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin: 5rem auto;
+  max-width: 400px;
+  border: 1px solid #ffd6e0;
   text-align: center;
+}
+
+.login-card input {
+  width: 90%;
+  padding: 10px;
+  margin: 0.5rem 0;
+  border: 1px solid #ffd6e0;
+  border-radius: 8px;
+}
+
+.login-card button {
+  background: #ff8fab;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.login-card button:hover {
+  background: #ff6b9c;
 }
 
 /* === 頁尾 === */
 footer {
   text-align: center;
-  background: #2d6a4f;
+  background: #ff8fab;
   color: white;
   padding: 1rem;
   margin-top: 2rem;
