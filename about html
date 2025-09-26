@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>關於我們 - Custos Carbon</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Custos Carbon</h1>
+    <nav>
+      <a href="index.html">首頁</a>
+      <a href="about.html">關於我們</a>
+      <a href="calculator.html">碳足跡計算器</a>
+      <a href="contact.html">聯絡我們</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>關於我們</h2>
+    <p>我們致力於提供簡單的工具，幫助每個人了解自己的碳足跡並採取行動。</p>
+  </main>
+
+  <footer>
+    <p>© 2025 Custos Carbon</p>
+  </footer>
+</body>
+</html>
