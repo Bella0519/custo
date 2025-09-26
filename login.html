@@ -5,109 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | Custo</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      background-color: #d6d8da;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    .container {
-      display: flex;
-      min-height: 80vh;
-    }
-
-    .left-panel img {
-      width: 50vw;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .right-panel {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f5f5f5;
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      width: 300px;
-    }
-
-    .login-form label {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .login-form input {
-      padding: 8px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .options {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 10px 0;
-      font-size: 12px;
-    }
-
-    .login-form button {
-      background-color: #e7aeb6;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .login-form button:hover {
-      background-color: #e2919b;
-    }
-
-    .signup-text {
-      font-size: 12px;
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    footer {
-      background-color: #f8c7ce;
-      text-align: center;
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    .footer-links a {
-      margin: 0 10px;
-      text-decoration: none;
-      color: black;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .left-panel img {
-        width: 100%;
-        height: 200px;
-      }
-    }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <div class="left-panel">
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-left">
       <img src="images/login-left.jpg" alt="Login Image">
     </div>
-    <div class="right-panel">
+    <div class="login-right">
       <form class="login-form">
         <label>Net</label>
         <input type="text" placeholder="abc.com.tw">
@@ -118,7 +22,7 @@
         <label>Password</label>
         <input type="password" placeholder="@Abc1234">
 
-        <div class="options">
+        <div class="login-options">
           <label><input type="checkbox"> Remember me</label>
           <a href="#">Forgot Password?</a>
         </div>
