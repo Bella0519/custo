@@ -2,20 +2,17 @@
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = document.getElementById("regEmail").value.trim();
-  const password = document.getElementById("regPassword").value.trim();
-  const password2 = document.getElementById("regPassword2").value.trim();
+  const username = document.getElementById("newUsername").value.trim();
+  const email = document.getElementById("newEmail").value.trim();
+  const password = document.getElementById("newPassword").value.trim();
 
-  if (!email || !password || !password2) {
-    alert("⚠️ 請填寫完整資訊！");
+  if (!username || !email || !password) {
+    alert("⚠ 請輸入完整資訊！");
     return;
   }
+
   if (password.length < 6) {
-    alert("⚠️ 密碼至少 6 個字元！");
-    return;
-  }
-  if (password !== password2) {
-    alert("⚠️ 兩次密碼不一致！");
+    alert("⚠ 密碼至少 6 個字元！");
     return;
   }
 
@@ -23,9 +20,19 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     const res = await fetch("http://localhost:3000/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: email, password })
+      body: JSON.stringify({ username, password })
     });
 
     const data = await res.json();
-    if (!res.ok) {
-      alert("❌
+
+    if (res.ok) {
+      alert("✅ 註冊成功，請重新登入！");
+      window.location.href = "login.html";
+    } else {
+      alert("❌ " + data.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("⚠ 註冊失敗，請稍後再試");
+  }
+});
