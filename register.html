@@ -13,8 +13,7 @@
       <a href="index.html">首頁</a>
       <a href="about.html">關於我們</a>
       <a href="contact.html">聯絡我們</a>
-      <a href="calculator.html" id="calculatorLink">碳足跡計算器</a>
-      <a href="login.html" id="loginLink">登入</a>
+      <a href="login.html">登入</a>
     </nav>
   </header>
 
@@ -22,22 +21,19 @@
     <div class="login-left" style="background-image:url('images/login-left.jpg')"></div>
     <div class="login-right">
       <div class="login-card">
-        <h2>建立帳號</h2>
+        <h2>註冊新帳號</h2>
         <form class="login-form" id="registerForm">
+          <label>帳號</label>
+          <input type="text" id="newUsername" required>
+
           <label>Email</label>
-          <input type="email" id="regEmail" required>
+          <input type="email" id="newEmail" required>
 
           <label>密碼</label>
-          <input type="password" id="regPassword" placeholder="至少 6 個字元" required>
-
-          <label>確認密碼</label>
-          <input type="password" id="regPassword2" required>
+          <input type="password" id="newPassword" required>
 
           <button type="submit">註冊</button>
-
-          <p class="signup-text">
-            已有帳號？ <a href="login.html">回登入頁</a>
-          </p>
+          <p class="signup-text">已經有帳號？ <a href="login.html">登入</a></p>
         </form>
       </div>
     </div>
@@ -47,7 +43,7 @@
     <p>© 2025 Custos Carbon. All rights reserved.</p>
   </footer>
 
-  <script src="js/auth.js"></script>
   <script src="js/register.js"></script>
 </body>
 </html>
+
