@@ -14,13 +14,13 @@
     <div class="login-right">
       <form class="login-form">
         <label>Net</label>
-        <input type="text" placeholder="abc.com.tw">
+        <input type="text" id="net" placeholder="abc.com.tw">
 
         <label>Email</label>
-        <input type="email" placeholder="abc@gmail.com">
+        <input type="email" id="email" placeholder="abc@gmail.com">
 
         <label>Password</label>
-        <input type="password" placeholder="@Abc1234">
+        <input type="password" id="password" placeholder="@Abc1234">
 
         <div class="login-options">
           <label><input type="checkbox"> Remember me</label>
@@ -44,5 +44,39 @@
     </div>
     <p>CompanyName @ 202X. All rights reserved.</p>
   </footer>
+
+  <!-- 🟢 登入檢查 JS -->
+  <script>
+    document.querySelector('.login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const net = document.getElementById('net').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      // 1️⃣ 空值檢查
+      if (!net || !email || !password) {
+        alert("⚠️ 請輸入完整資訊！");
+        return;
+      }
+
+      // 2️⃣ Email 格式檢查（必須包含 @ 和 .）
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        alert("⚠️ Email 格式錯誤，請重新輸入！");
+        return;
+      }
+
+      // 3️⃣ 密碼長度檢查（至少 6 碼）
+      if (password.length < 6) {
+        alert("⚠️ 密碼至少需 6 個字元！");
+        return;
+      }
+
+      // 成功提示 + 跳轉
+      alert("✅ 登入成功！即將回到首頁");
+      window.location.href = "index.html";
+    });
+  </script>
 </body>
 </html>
