@@ -2,33 +2,198 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>碳足跡計算器 - Custos Carbon</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>碳足跡計算器</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: "Noto Sans TC", sans-serif; background: #f5f5f5; margin: 0; }
+    .container {
+      max-width: 800px; margin: 2rem auto; background: white;
+      padding: 2rem; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .custom-row { margin-bottom: 12px; position: relative; }
+    .custom-keyword { width: 60%; padding: 5px; }
+    .custom-value { width: 20%; padding: 5px; margin-left: 5px; }
+    .custom-unit { margin-left: 5px; font-weight: bold; }
+    .suggestions {
+      border: 1px solid #ccc; max-height: 150px;
+      overflow-y: auto; position: absolute;
+      background: white; z-index: 10; width: 60%;
+    }
+    .suggestions div { padding: 5px; cursor: pointer; }
+    .suggestions div:hover { background: #e6f4ea; }
+    #chart-container { margin-top: 2rem; }
+    #downloadBtn {
+      background: #2d6a4f; color: white;
+      padding: 10px 15px; border: none;
+      border-radius: 6px; cursor: pointer;
+      margin-top: 10px;
+    }
+    #downloadBtn:hover { background: #40916c; }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Custos Carbon</h1>
-    <nav>
-      <a href="index.html">首頁</a>
-      <a href="about.html">關於我們</a>
-      <a href="calculator.html">碳足跡計算器</a>
-      <a href="contact.html">聯絡我們</a>
-    </nav>
-  </header>
+  <div class="container" id="reportArea">
+    <img src="images/logo.png" alt="Custos Carbon Logo" style="height:50px;">
+    <h1>碳足跡計算器</h1>
+    <p>輸入排放來源與使用量，系統會用最新環境署係數計算碳足跡並顯示圖表。</p>
 
-  <main>
-    <h2>碳足跡計算器</h2>
-    <label>請輸入你今天開車的公里數：</label>
-    <input type="number" id="km" placeholder="公里數">
-    <button onclick="calculate()">計算</button>
-    <p id="output"></p>
-  </main>
+    <div id="customItems"></div>
+    <button type="button" onclick="addCustom()">＋ 新增排放項目</button>
 
-  <footer>
-    <p>© 2025 Custos Carbon</p>
-  </footer>
+    <hr>
+    <button type="button" onclick="calculate()">計算總排放量</button>
+    <p id="result"></p>
 
-  <!-- 引用外部 JS -->
-  <script src="script.js"></script>
+    <div id="chart-container">
+      <canvas id="carbonChart"></canvas>
+    </div>
+  </div>
+
+  <button id="downloadBtn" onclick="downloadPDF()">📄 匯出 PDF 報告</button>
+
+  <script>
+    let emissionFactors = [];
+    let chartInstance = null;
+    let lastLabels = [];
+    let lastValues = [];
+    let lastTotal = 0;
+
+    async function loadFactors() {
+      try {
+        const res = await fetch("https://data.moenv.gov.tw/api/v2/CFP_P_02?format=json");
+        const data = await res.json();
+        emissionFactors = data.records.map(r => ({
+          name: r.name,
+          unit: r.unit,
+          factor: parseFloat(r.coe),
+        }));
+      } catch (err) {
+        console.error("載入係數失敗", err);
+      }
+    }
+
+    function addCustom() {
+      const container = document.getElementById('customItems');
+      const div = document.createElement('div');
+      div.classList.add('custom-row');
+      div.innerHTML = `
+        <input type="text" class="custom-keyword" placeholder="輸入關鍵字搜尋 (例：電力、汽油)">
+        <div class="suggestions"></div>
+        <input type="number" class="custom-value" min="0" value="0" placeholder="使用量">
+        <span class="custom-unit"></span>
+        <button type="button" onclick="this.parentElement.remove()">刪除</button>
+      `;
+      container.appendChild(div);
+      setupSearch(div);
+    }
+
+    function setupSearch(row) {
+      const input = row.querySelector('.custom-keyword');
+      const suggestions = row.querySelector('.suggestions');
+      const unitDisplay = row.querySelector('.custom-unit');
+
+      input.addEventListener('input', () => {
+        const keyword = input.value.trim();
+        suggestions.innerHTML = "";
+        if (keyword.length > 0) {
+          const results = emissionFactors.filter(f => f.name.includes(keyword));
+          results.slice(0, 20).forEach(f => {
+            const option = document.createElement('div');
+            option.textContent = `${f.name} (${f.unit})`;
+            option.addEventListener('click', () => {
+              input.value = f.name;
+              unitDisplay.textContent = f.unit;
+              input.dataset.factor = f.factor;
+              suggestions.innerHTML = "";
+            });
+            suggestions.appendChild(option);
+          });
+        }
+      });
+    }
+
+    function calculate() {
+      lastLabels = [];
+      lastValues = [];
+      lastTotal = 0;
+
+      document.querySelectorAll('.custom-row').forEach(row => {
+        const val = Number(row.querySelector('.custom-value').value);
+        const factor = Number(row.querySelector('.custom-keyword').dataset.factor || 0);
+        const name = row.querySelector('.custom-keyword').value || "未命名";
+        if (!isNaN(factor) && val > 0) {
+          const emission = val * factor;
+          lastTotal += emission;
+          lastLabels.push(name);
+          lastValues.push(emission);
+        }
+      });
+
+      document.getElementById('result').innerText =
+        `總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`;
+      drawChart(lastLabels, lastValues);
+    }
+
+    function drawChart(labels, values) {
+      const ctx = document.getElementById('carbonChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: ['#95d5b2','#74c69d','#52b788','#40916c','#2d6a4f','#1b4332']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+
+      // 報告標題
+      pdf.setFontSize(20);
+      pdf.text("Custos Carbon 碳足跡分析報告", pageWidth / 2, 20, { align: 'center' });
+
+      // 日期
+      pdf.setFontSize(12);
+      const today = new Date().toLocaleDateString();
+      pdf.text(`日期：${today}`, 14, 30);
+
+      // 總碳排放
+      pdf.setFontSize(14);
+      pdf.text(`總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`, 14, 45);
+
+      // 插入圖表
+      const chartCanvas = document.getElementById("carbonChart");
+      const chartImg = chartCanvas.toDataURL("image/png", 1.0);
+      pdf.addImage(chartImg, "PNG", 30, 55, 150, 100);
+
+      // 建議行動
+      pdf.setFontSize(12);
+      pdf.text("建議行動：", 14, 165);
+      if (lastTotal > 1000) {
+        pdf.text("您的碳排放高於平均，建議減少交通油耗、降低用電量。", 14, 175);
+      } else {
+        pdf.text("您的碳排放量低於平均，請持續保持綠色生活習慣！", 14, 175);
+      }
+
+      pdf.save('碳足跡專業報告.pdf');
+    }
+
+    loadFactors();
+    addCustom();
+  </script>
 </body>
 </html>
