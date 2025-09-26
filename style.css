@@ -1,0 +1,77 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", sans-serif;
+}
+
+body {
+    line-height: 1.6;
+}
+
+header {
+    background-color: #2C3E50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+header nav a {
+    color: white;
+    margin: 0 1rem;
+    text-decoration: none;
+}
+
+#hero {
+    background-color: #27AE60;
+    color: white;
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+section {
+    padding: 2rem 1rem;
+}
+
+.feature-cards {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card {
+    background-color: #ecf0f1;
+    padding: 1rem;
+    border-radius: 10px;
+    flex: 1 1 250px;
+}
+
+input {
+    display: block;
+    margin: 0.5rem 0 1rem;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background-color: #27AE60;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #1e8449;
+}
+
+footer {
+    background-color: #2C3E50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
