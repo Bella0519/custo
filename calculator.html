@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>碳足跡計算器 - Custos Carbon</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    function calculate() {
+      const km = document.getElementById("km").value;
+      const result = km * 0.12; // 假設每公里 0.12 kg CO2
+      document.getElementById("output").innerText = "你的碳排放: " + result.toFixed(2) + " kg CO2";
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Custos Carbon</h1>
+    <nav>
+      <a href="index.html">首頁</a>
+      <a href="about.html">關於我們</a>
+      <a href="calculator.html">碳足跡計算器</a>
+      <a href="contact.html">聯絡我們</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>碳足跡計算器</h2>
+    <label>請輸入你今天開車的公里數：</label>
+    <input type="number" id="km" placeholder="公里數">
+    <button onclick="calculate()">計算</button>
+    <p id="output"></p>
+  </main>
+
+  <footer>
+    <p>© 2025 Custos Carbon</p>
+  </footer>
+</body>
+</html>
