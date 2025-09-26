@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,18 +34,9 @@
   </div>
 
   <footer>
-    <div class="footer-links">
-      <a href="index.html">Home</a>
-      <a href="#">Mode</a>
-      <a href="#">Dashboard</a>
-      <a href="#">Community</a>
-      <a href="#">About us</a>
-      <a href="#">Link</a>
-    </div>
-    <p>CompanyName @ 202X. All rights reserved.</p>
+    <p>© 2025 Custos Carbon</p>
   </footer>
 
-  <!-- 🟢 登入檢查 JS -->
   <script>
     document.querySelector('.login-form').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -54,28 +45,28 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value.trim();
 
-      // 1️⃣ 空值檢查
       if (!net || !email || !password) {
         alert("⚠️ 請輸入完整資訊！");
         return;
       }
 
-      // 2️⃣ Email 格式檢查（必須包含 @ 和 .）
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailPattern.test(email)) {
         alert("⚠️ Email 格式錯誤，請重新輸入！");
         return;
       }
 
-      // 3️⃣ 密碼長度檢查（至少 6 碼）
       if (password.length < 6) {
         alert("⚠️ 密碼至少需 6 個字元！");
         return;
       }
 
-      // 成功提示 + 跳轉
-      alert("✅ 登入成功！即將回到首頁");
-      window.location.href = "index.html";
+      // 記住登入狀態和使用者名稱
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('username', email.split('@')[0]);
+
+      alert("✅ 登入成功！即將進入會員中心");
+      window.location.href = "dashboard.html";
     });
   </script>
 </body>
