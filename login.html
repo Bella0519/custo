@@ -14,7 +14,7 @@
       <a href="about.html">關於我們</a>
       <a href="contact.html">聯絡我們</a>
       <a href="calculator.html" id="calculatorLink">碳足跡計算器</a>
-      <a href="login.html" id="loginLink">登入</a>
+      <a href="login.html" id="loginLink" class="active">登入</a>
       <a href="#" id="logoutLink" style="display:none;">登出</a>
     </nav>
   </header>
@@ -25,11 +25,22 @@
       <div class="login-card">
         <h2>登入帳號</h2>
         <form class="login-form" id="loginForm">
-          <label>帳號</label>
-          <input type="text" id="username" required>
+          <label>帳號 (Email)</label>
+          <input type="email" id="email" placeholder="abc@gmail.com" required>
+
           <label>密碼</label>
-          <input type="password" id="password" required>
+          <input type="password" id="password" placeholder="@Abc1234" required>
+
+          <div class="login-options">
+            <label><input type="checkbox" id="rememberMe"> 記住我</label>
+            <a href="forgot.html">忘記密碼？</a>
+          </div>
+
           <button type="submit">登入</button>
+
+          <p class="signup-text">
+            還沒有帳號？ <a href="register.html">立即註冊</a>
+          </p>
         </form>
       </div>
     </div>
