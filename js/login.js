@@ -1,7 +1,9 @@
 // ✅ 自動偵測環境：如果是在 GitHub Pages，就使用 Render 的雲端後端
-const API_BASE = location.hostname.includes("github.io")
-  ? "https://custos-backend.onrender.com"
+const API_BASE = window.location.hostname.includes("github.io")
+  ? "https://custos-backend.onrender.com"  // ← 換成你的 Render 實際網址（確保正確）
   : "http://localhost:3000";
+
+console.log("🌍 使用的 API 來源：", API_BASE);
 
 // ✅ 綁定登入表單事件
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
@@ -30,7 +32,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       body: JSON.stringify({ username, password }),
     });
 
-    const data = await res.json();
+    // 避免非 JSON 回應導致報錯
+    const data = await res.json().catch(() => ({}));
 
     if (res.ok) {
       // ✅ 登入成功 → 存入 localStorage
@@ -44,7 +47,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       alert("❌ " + (data.message || "登入失敗，請檢查帳號密碼"));
     }
   } catch (err) {
-    console.error("❌ 連線錯誤:", err);
+    console.error("🚨 連線錯誤：", err);
     alert("⚠ 系統錯誤，請稍後再試。");
   }
 });
