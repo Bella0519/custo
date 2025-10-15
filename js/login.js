@@ -1,6 +1,7 @@
-// ✅ 定義後端 API 位置（本地開發用）
-// 未來如果上線（例如 Render），只要改這裡
-const API_BASE = "http://localhost:3000";
+// ✅ 根據環境自動設定 API 網址
+const API_BASE = location.hostname.includes("github.io")
+  ? "https://custos-backend.onrender.com"
+  : "http://localhost:3000";
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -43,7 +44,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       alert("❌ " + data.message);
     }
   } catch (err) {
-    console.error(err);
+    console.error("⚠ 後端連線錯誤：", err);
     alert("⚠ 系統錯誤，請稍後再試。");
   }
 });
