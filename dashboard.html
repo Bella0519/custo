@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>管理後台｜Custos Carbon</title>
   <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
   <script>
     // 登入檢查：未登入就導回 login
     if (localStorage.getItem("isLoggedIn") !== "true") {
@@ -12,8 +15,7 @@
       window.location.href = "login.html";
     }
   </script>
-</head>
-<body>
+
   <header>
     <h1>Custos Carbon</h1>
     <nav>
@@ -48,6 +50,7 @@
   <footer>
     <p>© 2025 Custos Carbon. All rights reserved.</p>
   </footer>
+
   <script src="js/dashboard.js"></script>
 </body>
 </html>
