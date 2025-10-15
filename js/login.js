@@ -1,12 +1,12 @@
-// ✅ 根據環境自動設定 API 網址
+// ✅ 自動偵測環境：如果是在 GitHub Pages，就使用 Render 的雲端後端
 const API_BASE = location.hostname.includes("github.io")
   ? "https://custos-backend.onrender.com"
   : "http://localhost:3000";
 
+// ✅ 綁定登入表單事件
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // 取得使用者輸入
   const username = document.getElementById("username").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -27,7 +27,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const res = await fetch(`${API_BASE}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, password }),
     });
 
     const data = await res.json();
@@ -41,10 +41,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
       alert("✅ 登入成功！");
       window.location.href = "dashboard.html"; // 跳轉到主頁面
     } else {
-      alert("❌ " + data.message);
+      alert("❌ " + (data.message || "登入失敗，請檢查帳號密碼"));
     }
   } catch (err) {
-    console.error("⚠ 後端連線錯誤：", err);
+    console.error("❌ 連線錯誤:", err);
     alert("⚠ 系統錯誤，請稍後再試。");
   }
 });
