@@ -1,11 +1,133 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>登入｜Custos Carbon</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* 🩵 針對無圖片版本的額外補強樣式 */
+    body.login-page {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f5f7fa;
+    }
+
+    header {
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      margin-left: 1rem;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+    nav a:hover {
+      color: #2e8b57;
+    }
+
+    .login-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+    }
+
+    .login-card {
+      background: white;
+      padding: 2.5rem 3rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .login-card h2 {
+      margin-bottom: 1.5rem;
+      color: #2e8b57;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 0.75rem 0 0.3rem;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus {
+      border-color: #2e8b57;
+    }
+
+    .login-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    button[type="submit"] {
+      background: #2e8b57;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #256b45;
+    }
+
+    .signup-text {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .signup-text a {
+      color: #2e8b57;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #fff;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: #555;
+      border-top: 1px solid #eee;
+    }
+  </style>
 </head>
+
 <body class="login-page">
   <header>
     <h1>Custos Carbon</h1>
@@ -15,41 +137,40 @@
       <a href="contact.html">聯絡我們</a>
       <a href="calculator.html" id="calculatorLink">碳足跡計算器</a>
       <a href="login.html" id="loginLink">登入</a>
-      <a href="#" id="logoutLink" style="display:none;">登出</a>
+      <a href="#" id="logoutLink" style="display: none">登出</a>
     </nav>
   </header>
 
   <div class="login-container">
-    <div class="login-left" style="background-image:url('images/login-left.jpg')"></div>
-    <div class="login-right">
-      <div class="login-card">
-        <h2>登入帳號</h2>
-        <form class="login-form" id="loginForm">
-          <label>帳號</label>
-          <input type="text" id="username" placeholder="輸入帳號 (例如 bella)" required>
+    <div class="login-card">
+      <h2>登入帳號</h2>
+      <form class="login-form" id="loginForm">
+        <label>帳號</label>
+        <input type="text" id="username" placeholder="輸入帳號 (例如 bella)" required />
 
-          <label>Email</label>
-          <input type="email" id="email" placeholder="輸入 Email" required>
+        <label>Email</label>
+        <input type="email" id="email" placeholder="輸入 Email" required />
 
-          <label>密碼</label>
-          <input type="password" id="password" placeholder="輸入密碼" required>
+        <label>密碼</label>
+        <input type="password" id="password" placeholder="輸入密碼" required />
 
-          <!-- 登入選項 -->
-          <div class="login-options">
-            <label><input type="checkbox" id="rememberMe"> 記住我</label>
-            <a href="forgot.html">忘記密碼？</a>
-          </div>
+        <div class="login-options">
+          <label><input type="checkbox" id="rememberMe" /> 記住我</label>
+          <a href="forgot.html">忘記密碼？</a>
+        </div>
 
-          <button type="submit">登入</button>
-          <p class="signup-text">還沒有帳號？ <a href="register.html">註冊</a></p>
-        </form>
-      </div>
+        <button type="submit">登入</button>
+        <p class="signup-text">
+          還沒有帳號？ <a href="register.html">註冊</a>
+        </p>
+      </form>
     </div>
   </div>
 
   <footer>
     <p>© 2025 Custos Carbon. All rights reserved.</p>
   </footer>
+
   <script src="js/login.js"></script>
 </body>
 </html>
