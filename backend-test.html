@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>前後端表單測試</title>
+</head>
+<body>
+  <h1>前後端表單測試</h1>
+
+  <label for="number">輸入一個數字：</label>
+  <input type="number" id="number" />
+  <button id="sendBtn">送出</button>
+
+  <p id="output"></p>
+
+  <script>
+    document.getElementById("sendBtn").addEventListener("click", async () => {
+      const number = Number(document.getElementById("number").value);
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/calculate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ number: number }),
+        });
+
+        const data = await response.json();
+        document.getElementById("output").innerText =
+          `你輸入的數字：${data.input}\n計算結果：${data.result}`;
+      } catch (error) {
+        document.getElementById("output").innerText = "❌ 發生錯誤：" + error;
+      }
+    });
+  </script>
+</body>
+</html>
