@@ -1,7 +1,7 @@
 // calculator.js
 // ====================================
-// 🌍 Custos Carbon 主邏輯整合版
-// 包含：自動登入、政府資料、交通資料、快速新增、推薦系統、PDF輸出
+// 🌍 Custos Carbon 改良版碳足跡計算器
+// 功能：政府資料載入 + 交通建議 + 智能提示 + 快速新增
 // ====================================
 
 let emissionFactors = [];
@@ -10,14 +10,14 @@ let lastLabels = [];
 let lastValues = [];
 let lastTotal = 0;
 
-// ✅ 模擬自動登入
+// ✅ 模擬自動登入（guest 模式）
 if (!localStorage.getItem("isLoggedIn")) {
   localStorage.setItem("isLoggedIn", "true");
   localStorage.setItem("username", "guest");
   console.log("🔓 自動登入 guest 模式");
 }
 
-// ✅ 載入環境部資料
+// ✅ 載入政府開放資料
 async function loadFactors() {
   const apiURL = "https://data.moenv.gov.tw/api/v2/CFP_P_02?format=json";
   try {
@@ -38,21 +38,17 @@ async function loadFactors() {
     ];
   }
 
-  // 加入交通資料與推薦
-  mergeTransportData();
+  // ✅ 無論成功或失敗都加入交通建議資料
+  if (typeof customTransportFactors !== "undefined") {
+    emissionFactors = emissionFactors.concat(customTransportFactors);
+    console.log("🚗 已整合交通運輸建議項目");
+  }
+
   recommendItems();
   addCustom();
 }
 
-// ✅ 合併交通建議資料
-function mergeTransportData() {
-  if (typeof customTransportFactors !== "undefined") {
-    emissionFactors = emissionFactors.concat(customTransportFactors);
-    console.log("🚗 已合併交通運輸資料");
-  }
-}
-
-// ✅ 推薦項目清單
+// ✅ 類別推薦項目
 function recommendItems() {
   const categories = {
     "交通": ["公車", "捷運", "高鐵", "汽車", "機車", "飛機"],
@@ -62,8 +58,8 @@ function recommendItems() {
 
   const recommendations = [];
   for (const [cat, keywords] of Object.entries(categories)) {
-    const match = emissionFactors.find(f => keywords.some(k => f.name.includes(k)));
-    if (match) recommendations.push({ category: cat, ...match });
+    const matches = emissionFactors.filter(f => keywords.some(k => f.name.includes(k)));
+    matches.forEach(m => recommendations.push({ category: cat, ...m }));
   }
 
   const section = document.getElementById("recommendations");
@@ -78,7 +74,7 @@ function recommendItems() {
   `;
 }
 
-// ✅ 建立輸入欄
+// ✅ 新增自訂項目列
 function addCustom(selectedFactor = null) {
   const container = document.getElementById("customItems");
   const div = document.createElement("div");
@@ -86,7 +82,7 @@ function addCustom(selectedFactor = null) {
   div.style.position = "relative";
 
   div.innerHTML = `
-    <input type="text" class="custom-keyword" placeholder="輸入關鍵字，例如 電力"
+    <input type="text" class="custom-keyword" placeholder="輸入關鍵字，例如 電力 或 交通"
            value="${selectedFactor ? selectedFactor.name : ''}"
            data-factor="${selectedFactor ? selectedFactor.factor : ''}">
     <div class="suggestions"></div>
@@ -100,36 +96,68 @@ function addCustom(selectedFactor = null) {
   div.querySelector(".custom-value").addEventListener("input", calculate);
 }
 
-// ✅ 搜尋建議
+// ✅ 搜尋提示邏輯
 function setupSearch(row) {
   const input = row.querySelector(".custom-keyword");
   const suggestions = row.querySelector(".suggestions");
 
   input.addEventListener("input", () => {
     const keyword = input.value.trim();
-    suggestions.innerHTML = "";
-    const results = emissionFactors.filter(f => f.name.includes(keyword));
-    if (results.length === 0) {
+    if (keyword.length === 0) {
       suggestions.style.display = "none";
       return;
     }
-    results.forEach(f => {
-      const option = document.createElement("div");
-      option.textContent = `${f.name} (${f.unit})`;
-      option.addEventListener("click", () => {
-        input.value = f.name;
-        row.querySelector(".custom-unit").textContent = f.unit;
-        input.dataset.factor = f.factor;
-        suggestions.style.display = "none";
-        calculate();
-      });
-      suggestions.appendChild(option);
-    });
-    suggestions.style.display = "block";
+    showSuggestions(row, keyword);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!row.contains(e.target)) {
+      suggestions.style.display = "none";
+    }
   });
 }
 
-// ✅ 計算碳排
+// ✅ 智能提示強化版
+function showSuggestions(row, keyword) {
+  const suggestions = row.querySelector(".suggestions");
+  suggestions.innerHTML = "";
+
+  // 🚀 關聯字詞擴充（模糊匹配）
+  const related = {
+    "交通": ["公車", "捷運", "高鐵", "汽車", "機車", "飛機"],
+    "能源": ["電力", "汽油", "柴油"],
+    "出行": ["自行車", "步行"]
+  };
+
+  let expandedKeywords = [keyword];
+  if (related[keyword]) expandedKeywords = related[keyword];
+
+  const results = emissionFactors.filter(f =>
+    expandedKeywords.some(k => f.name.includes(k))
+  );
+
+  if (results.length === 0) {
+    suggestions.style.display = "none";
+    return;
+  }
+
+  results.forEach(f => {
+    const option = document.createElement("div");
+    option.textContent = `${f.name} (${f.unit})`;
+    option.addEventListener("click", () => {
+      row.querySelector(".custom-keyword").value = f.name;
+      row.querySelector(".custom-unit").textContent = f.unit;
+      row.querySelector(".custom-keyword").dataset.factor = f.factor;
+      suggestions.style.display = "none";
+      calculate();
+    });
+    suggestions.appendChild(option);
+  });
+
+  suggestions.style.display = "block";
+}
+
+// ✅ 計算總碳排
 function calculate() {
   lastLabels = [];
   lastValues = [];
@@ -154,7 +182,7 @@ function calculate() {
   drawChart(lastLabels, lastValues);
 }
 
-// ✅ 畫圖表
+// ✅ 繪製圓餅圖
 function drawChart(labels, values) {
   const ctx = document.getElementById("carbonChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
@@ -176,7 +204,7 @@ function drawChart(labels, values) {
   });
 }
 
-// ✅ 快速新增功能
+// ✅ 快速新增類別
 function quickAdd(category) {
   let items = [];
   if (category === "交通") {
@@ -210,5 +238,5 @@ async function downloadPDF() {
   pdf.save("碳足跡報告.pdf");
 }
 
-// ✅ 啟動
+// ✅ 啟動初始化
 loadFactors();
