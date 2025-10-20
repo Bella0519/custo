@@ -4,105 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>碳足跡計算器｜Custos Carbon</title>
-
-  <!-- 登入狀態檢查 -->
-  <script>
-    /**
-     * if (localStorage.getItem("isLoggedIn") !== "true") {
-     *   alert("請先登入才能使用碳足跡計算器");
-     *   window.location.href = "login.html";
-     * }
-     */
-
-    // ✅ 模擬自動登入（測試模式）
-    if (!localStorage.getItem("isLoggedIn")) {
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", "guest");
-      console.log("🔓 自動登入 guest 模式（碳足跡計算器）");
-    }
-  </script>
-
-  <script src="config.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    /* 圓餅圖容器大小控制 */
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #fffafc;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      color: #c9184a;
+      margin-top: 1.5rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    input, button {
+      font-size: 1rem;
+      padding: 8px;
+      margin: 4px;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #ffd6e0;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #ffc2d1;
+    }
+
     #chart-container {
       max-width: 400px;
       margin: 20px auto;
     }
-    canvas#carbonChart {
-      max-width: 100%;
-      max-height: 400px;
-    }
 
-    /* 建議字串樣式 */
     .suggestions {
       border: 1px solid #ffd6e0;
-      max-height: 150px;
-      overflow-y: auto;
+      background: #fff;
       position: absolute;
-      background: white;
       z-index: 10;
       width: 55%;
-      top: 100%;
-      left: 0;
+      max-height: 150px;
+      overflow-y: auto;
       display: none;
     }
+
     .suggestions div {
       padding: 5px;
       cursor: pointer;
     }
+
     .suggestions div:hover {
       background: #ffe5ec;
     }
 
-    /* 清空按鈕樣式 */
-    .reset-btn {
-      background: #ffd6e0;
-      color: #333;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      margin-left: 10px;
-      transition: background 0.2s ease;
-    }
-    .reset-btn:hover {
-      background: #ffc2d1;
-    }
-
-    /* 推薦區塊樣式 */
-    #recommendations {
-      margin-top: 1.5rem;
+    #recommendations, #quick-add {
       background: #fff0f5;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 1rem;
+      margin-top: 1.5rem;
       border: 1px solid #ffd6e0;
     }
-    #recommendations h3 {
+
+    #recommendations h3, #quick-add h3 {
       color: #c9184a;
+      margin-bottom: 10px;
     }
-    #recommendations ul {
-      list-style: none;
-      padding-left: 0;
-    }
-    #recommendations li {
-      padding: 4px 0;
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>碳足跡計算器</h1>
+    <h1>Custos Carbon 碳足跡計算器</h1>
     <p>輸入排放來源與數量，系統會自動計算碳足跡。</p>
 
+    <!-- 快速新增區 -->
+    <section id="quick-add">
+      <h3>🚀 快速新增常見類別</h3>
+      <p>點擊按鈕快速新增常見排放項目：</p>
+      <button onclick="quickAdd('交通')">🚗 交通</button>
+      <button onclick="quickAdd('飲食')">🍽 飲食</button>
+      <button onclick="quickAdd('用電')">⚡ 用電</button>
+    </section>
+
     <div id="customItems"></div>
-    <button class="compute-btn" onclick="addCustom()">＋ 新增排放項目</button>
-    <button class="reset-btn" onclick="clearAll()">🗑 清空所有</button>
+    <button onclick="addCustom()">＋ 新增排放項目</button>
+    <button onclick="clearAll()">🗑 清空所有</button>
 
     <hr>
 
@@ -111,225 +117,18 @@
       <canvas id="carbonChart"></canvas>
     </div>
 
-    <button id="downloadBtn" onclick="downloadPDF()">📄 匯出 PDF 報告</button>
+    <button onclick="downloadPDF()">📄 匯出 PDF 報告</button>
 
-    <!-- 推薦項目區塊 -->
+    <!-- 推薦項目區 -->
     <section id="recommendations"></section>
+
+    <footer>
+      <p>© 2025 Custos Carbon. All rights reserved.</p>
+    </footer>
   </div>
 
-  <script>
-    let emissionFactors = [];
-    let chartInstance = null;
-    let lastLabels = [];
-    let lastValues = [];
-    let lastTotal = 0;
-
-    // ✅ 載入環境部開放資料
-    async function loadFactors() {
-      const API_KEY = window.CUSTOS_CONFIG?.API_KEY || "";
-      const ALLOWED_HOST = window.CUSTOS_CONFIG?.ALLOWED_HOST || "";
-
-      if (ALLOWED_HOST && window.location.hostname !== ALLOWED_HOST) {
-        console.warn("⚠ 網域不符合，停用 API Key，只用預設數據");
-        return useFallbackData();
-      }
-      if (!API_KEY) {
-        console.error("❌ 沒有 API Key，使用預設資料");
-        return useFallbackData();
-      }
-
-      const apiURL = `https://data.moenv.gov.tw/api/v2/CFP_P_02?api_key=${API_KEY}&format=json`;
-      try {
-        const res = await fetch(apiURL);
-        if (!res.ok) throw new Error(`API 回應狀態碼：${res.status}`);
-        const data = await res.json();
-        if (!data.records) throw new Error("API 沒有回傳 records");
-
-        emissionFactors = data.records.map(r => ({
-          name: r.name,
-          unit: r.unit,
-          factor: parseFloat(r.coe),
-        }));
-        addCustom();
-        recommendItems(); // ⬅️ 新增推薦清單
-      } catch (err) {
-        console.error("❌ 無法載入 API：", err.message);
-        useFallbackData();
-      }
-    }
-
-    // ✅ 預設資料
-    function useFallbackData() {
-      emissionFactors = [
-        { name: "電力", unit: "kWh", factor: 0.509 },
-        { name: "汽油", unit: "L", factor: 2.34 },
-        { name: "柴油", unit: "L", factor: 2.68 },
-        { name: "紙張", unit: "kg", factor: 1.5 },
-        { name: "飛機航程", unit: "km", factor: 0.13 },
-      ];
-      addCustom();
-      recommendItems();
-    }
-
-    // ✅ 自動推薦排放項目（依政府資料分類）
-    function recommendItems() {
-      const categories = {
-        "交通": ["汽油", "柴油", "飛機", "機車", "汽車"],
-        "用電": ["電力", "瓦時", "照明"],
-        "紙類": ["紙", "印刷", "包裝"],
-        "食品": ["米", "牛奶", "肉", "飲料"],
-        "其他": ["塑膠", "衣", "電子"]
-      };
-
-      const recommendations = [];
-      for (const [cat, keywords] of Object.entries(categories)) {
-        const match = emissionFactors.find(f =>
-          keywords.some(k => f.name.includes(k))
-        );
-        if (match) recommendations.push({ category: cat, ...match });
-      }
-
-      const section = document.getElementById("recommendations");
-      section.innerHTML = `
-        <h3>🌿 系統推薦排放項目（依政府開放資料）</h3>
-        <ul>
-          ${recommendations.map(
-            r => `<li><b>${r.category}</b>：${r.name}（${r.unit}，係數 ${r.factor} kg CO₂e）</li>`
-          ).join("")}
-        </ul>
-      `;
-    }
-
-    // ✅ 建立自訂輸入欄
-    function addCustom(selectedFactor = null) {
-      const container = document.getElementById("customItems");
-      const div = document.createElement("div");
-      div.classList.add("custom-row");
-
-      div.innerHTML = `
-        <input type="text" class="custom-keyword" placeholder="輸入關鍵字，例如 電力"
-               value="${selectedFactor ? selectedFactor.name : ''}"
-               data-factor="${selectedFactor ? selectedFactor.factor : ''}">
-        <div class="suggestions"></div>
-        <input type="number" class="custom-value" min="0" value="0" placeholder="使用量">
-        <span class="custom-unit">${selectedFactor ? selectedFactor.unit : ''}</span>
-        <button type="button" onclick="this.parentElement.remove(); calculate()">刪除</button>
-      `;
-
-      container.appendChild(div);
-      setupSearch(div);
-      div.querySelector(".custom-value").addEventListener("input", calculate);
-    }
-
-    // ✅ 搜尋與即時建議
-    function setupSearch(row) {
-      const input = row.querySelector(".custom-keyword");
-      const suggestions = row.querySelector(".suggestions");
-
-      input.addEventListener("input", () => {
-        const keyword = input.value.trim();
-        if (keyword.length === 0) {
-          suggestions.style.display = "none";
-          suggestions.innerHTML = "";
-          return;
-        }
-        showSuggestions(row, keyword);
-      });
-
-      document.addEventListener("click", (e) => {
-        if (!row.contains(e.target)) suggestions.style.display = "none";
-      });
-    }
-
-    function showSuggestions(row, keyword) {
-      const suggestions = row.querySelector(".suggestions");
-      suggestions.innerHTML = "";
-      const results = emissionFactors.filter(f => f.name.includes(keyword));
-
-      if (results.length === 0) {
-        suggestions.style.display = "none";
-        return;
-      }
-
-      results.forEach(f => {
-        const option = document.createElement("div");
-        option.textContent = `${f.name} (${f.unit})`;
-        option.addEventListener("click", () => {
-          row.querySelector(".custom-keyword").value = f.name;
-          row.querySelector(".custom-unit").textContent = f.unit;
-          row.querySelector(".custom-keyword").dataset.factor = f.factor;
-          suggestions.style.display = "none";
-          calculate();
-        });
-        suggestions.appendChild(option);
-      });
-
-      suggestions.style.display = "block";
-    }
-
-    // ✅ 計算邏輯
-    function calculate() {
-      lastLabels = [];
-      lastValues = [];
-      lastTotal = 0;
-
-      document.querySelectorAll(".custom-row").forEach(row => {
-        const val = Number(row.querySelector(".custom-value").value);
-        const factor = Number(row.querySelector(".custom-keyword").dataset.factor || 0);
-        const name = row.querySelector(".custom-keyword").value || "未命名";
-
-        if (!isNaN(factor) && val > 0) {
-          const emission = val * factor;
-          lastTotal += emission;
-          lastLabels.push(name);
-          lastValues.push(emission);
-        }
-      });
-
-      document.getElementById("result").innerText =
-        lastTotal > 0 ? `總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e` : "";
-      drawChart(lastLabels, lastValues);
-    }
-
-    // ✅ 畫出圓餅圖
-    function drawChart(labels, values) {
-      const ctx = document.getElementById("carbonChart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
-      if (values.length === 0) return;
-
-      chartInstance = new Chart(ctx, {
-        type: "pie",
-        data: { labels, datasets: [{ data: values, backgroundColor: ['#ffb3c1','#ff8fab','#ff6b9c','#ff4d6d','#c9184a','#800f2f'] }] },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom" } }
-        }
-      });
-    }
-
-    // ✅ 清空所有資料
-    function clearAll() {
-      document.getElementById("customItems").innerHTML = "";
-      document.getElementById("result").innerText = "";
-      if (chartInstance) {
-        chartInstance.destroy();
-        chartInstance = null;
-      }
-      addCustom();
-    }
-
-    // ✅ 匯出 PDF
-    async function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      pdf.text("Custos Carbon 碳足跡分析報告", 105, 20, { align: "center" });
-      pdf.text(`總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`, 20, 40);
-      pdf.save("碳足跡報告.pdf");
-    }
-
-    // ✅ 啟動流程
-    loadFactors();
-  </script>
+  <!-- JS 檔案載入順序 -->
+  <script src="js/transport_factors.js"></script>
+  <script src="js/calculator.js"></script>
 </body>
 </html>
