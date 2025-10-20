@@ -243,13 +243,70 @@ function clearAll() {
 }
 
 // ✅ 匯出 PDF
+// ✅ 匯出 PDF（進階報告版）
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const username = localStorage.getItem("username") || "guest";
+  const date = new Date().toLocaleString("zh-TW");
+
+  // 🌿 標題
+  pdf.setFontSize(18);
   pdf.text("Custos Carbon 碳足跡分析報告", 105, 20, { align: "center" });
-  pdf.text(`總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`, 20, 40);
-  pdf.save("碳足跡報告.pdf");
+
+  pdf.setFontSize(12);
+  pdf.text(`使用者：${username}`, 20, 35);
+  pdf.text(`產生日期：${date}`, 20, 43);
+  pdf.text(`總碳排放量：約 ${lastTotal.toFixed(2)} kg CO₂e`, 20, 53);
+
+  // 📋 表格標題
+  pdf.setFontSize(14);
+  pdf.text("各項排放明細：", 20, 65);
+  pdf.setFontSize(11);
+
+  let y = 72;
+  pdf.text("來源", 20, y);
+  pdf.text("使用量", 70, y);
+  pdf.text("係數(kg CO₂e/單位)", 110, y);
+  pdf.text("排放量(kg CO₂e)", 160, y);
+  pdf.line(20, y + 2, 190, y + 2);
+
+  // 📊 輸出每項紀錄
+  y += 8;
+  document.querySelectorAll(".custom-row").forEach(row => {
+    const name = row.querySelector(".custom-keyword").value || "未命名";
+    const val = Number(row.querySelector(".custom-value").value);
+    const unit = row.querySelector(".custom-unit").textContent || "";
+    const factor = Number(row.querySelector(".custom-keyword").dataset.factor || 0);
+    const emission = val * factor;
+
+    if (!isNaN(emission) && emission > 0) {
+      pdf.text(name, 20, y);
+      pdf.text(`${val} ${unit}`, 70, y);
+      pdf.text(`${factor.toFixed(3)}`, 110, y);
+      pdf.text(`${emission.toFixed(2)}`, 160, y);
+      y += 8;
+    }
+  });
+
+  // ⚙️ 插入 Chart.js 圖表
+  const chartCanvas = document.getElementById("carbonChart");
+  if (chartCanvas && chartCanvas.toDataURL) {
+    const chartImg = chartCanvas.toDataURL("image/png", 1.0);
+    pdf.addImage(chartImg, "PNG", 30, y + 5, 150, 90);
+    y += 100;
+  }
+
+  // 📘 結尾簽章
+  pdf.setFontSize(10);
+  pdf.text("本報告由 Custos Carbon 系統自動生成，用於個人碳足跡估算。", 20, y + 15);
+  pdf.text("© 2025 Custos Carbon | https://bella0519.github.io/custo", 20, y + 22);
+
+  // ✅ 儲存
+  pdf.save("CustosCarbon_碳足跡報告.pdf");
 }
+
 
 // ✅ 初始化
 loadFactors();
