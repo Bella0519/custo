@@ -4,130 +4,158 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>碳足跡計算器｜Custos Carbon</title>
+
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background-color: #fffafc;
-      color: #333;
+    /* 💡 關鍵字提示條 */
+    .keyword-hint {
+      background: #ffe5ec;
+      color: #800f2f;
+      padding: 10px 15px;
       text-align: center;
-      margin: 0;
-      padding: 0;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 8px;
+      margin: 15px auto;
+      width: 90%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    h1 {
-      color: #c9184a;
-      margin-top: 1.5rem;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    input, button {
-      font-size: 1rem;
-      padding: 8px;
-      margin: 4px;
-      border-radius: 6px;
-    }
-
-    button {
-      background-color: #ffd6e0;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #ffc2d1;
-    }
-
+    /* 圓餅圖容器 */
     #chart-container {
       max-width: 400px;
       margin: 20px auto;
     }
-
-    .suggestions {
-      border: 1px solid #ffd6e0;
-      background: #fff;
-      position: absolute;
-      z-index: 10;
-      width: 55%;
-      max-height: 150px;
-      overflow-y: auto;
-      display: none;
+    canvas#carbonChart {
+      max-width: 100%;
+      max-height: 400px;
     }
 
+    /* 建議字串樣式 */
+    .suggestions {
+      border: 1px solid #ffd6e0;
+      max-height: 150px;
+      overflow-y: auto;
+      position: absolute;
+      background: white;
+      z-index: 10;
+      width: 55%;
+      top: 100%;
+      left: 0;
+      display: none;
+    }
     .suggestions div {
       padding: 5px;
       cursor: pointer;
     }
-
     .suggestions div:hover {
       background: #ffe5ec;
     }
 
-    #recommendations, #quick-add {
-      background: #fff0f5;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      border: 1px solid #ffd6e0;
+    /* 按鈕樣式 */
+    button {
+      background: #ffd6e0;
+      color: #333;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      margin-left: 10px;
+      transition: background 0.2s ease;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #ffc2d1;
     }
 
-    #recommendations h3, #quick-add h3 {
-      color: #c9184a;
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #800f2f;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* 推薦清單 */
+    #recommendations {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #fff5f7;
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    #recommendations h3 {
+      color: #800f2f;
+      font-size: 18px;
       margin-bottom: 10px;
     }
 
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #666;
+    #recommendations ul {
+      list-style: none;
+      padding: 0;
     }
+
+    #recommendations li {
+      margin-bottom: 6px;
+      line-height: 1.5em;
+    }
+
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>Custos Carbon 碳足跡計算器</h1>
+    <h1>碳足跡計算器</h1>
     <p>輸入排放來源與數量，系統會自動計算碳足跡。</p>
 
-    <!-- 快速新增區 -->
-    <section id="quick-add">
-      <h3>🚀 快速新增常見類別</h3>
-      <p>點擊按鈕快速新增常見排放項目：</p>
-      <button onclick="quickAdd('交通')">🚗 交通</button>
-      <button onclick="quickAdd('飲食')">🍽 飲食</button>
-      <button onclick="quickAdd('用電')">⚡ 用電</button>
-    </section>
+    <!-- 💡 提示條 -->
+    <div class="keyword-hint">
+      💡 可輸入關鍵字：<b>交通、能源、飲食、日常用品、步行、自行車</b>
+    </div>
 
+    <!-- 🚗 一鍵加入按鈕 -->
+    <div style="margin-bottom: 10px;">
+      <button onclick="quickAdd('交通')">🚗 一鍵加入交通項目</button>
+      <button onclick="quickAdd('飲食')">🍱 一鍵加入飲食項目</button>
+      <button onclick="quickAdd('用電')">⚡ 一鍵加入用電項目</button>
+      <button onclick="quickAdd('綠色出行')">🌿 一鍵加入綠色出行</button>
+    </div>
+
+    <!-- 動態輸入列 -->
     <div id="customItems"></div>
     <button onclick="addCustom()">＋ 新增排放項目</button>
     <button onclick="clearAll()">🗑 清空所有</button>
 
     <hr>
 
+    <!-- 結果與圖表 -->
     <p id="result"></p>
     <div id="chart-container">
       <canvas id="carbonChart"></canvas>
     </div>
 
-    <button onclick="downloadPDF()">📄 匯出 PDF 報告</button>
-
-    <!-- 推薦項目區 -->
+    <!-- 推薦清單 -->
     <section id="recommendations"></section>
 
-    <footer>
-      <p>© 2025 Custos Carbon. All rights reserved.</p>
-    </footer>
+    <button id="downloadBtn" onclick="downloadPDF()">📄 匯出 PDF 報告</button>
   </div>
 
-  <!-- JS 檔案載入順序 -->
+  <!-- 載入順序：transport_factors.js → calculator.js -->
   <script src="js/transport_factors.js"></script>
   <script src="js/calculator.js"></script>
 </body>
