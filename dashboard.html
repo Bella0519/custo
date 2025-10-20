@@ -8,13 +8,23 @@
 </head>
 
 <body>
-  <script>
-    // 登入檢查：未登入就導回 login
-    if (localStorage.getItem("isLoggedIn") !== "true") {
-      alert("請先登入才能進入管理後台");
-      window.location.href = "login.html";
-    }
-  </script>
+<script>
+  /**
+   * // 登入檢查：未登入就導回 login
+   * if (localStorage.getItem("isLoggedIn") !== "true") {
+   *   alert("請先登入才能進入管理後台");
+   *   window.location.href = "login.html";
+   * }
+   */
+
+  // ✅ 模擬自動登入（測試用）
+  if (!localStorage.getItem("isLoggedIn")) {
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("username", "guest");
+    console.log("🧩 自動登入：guest 模式");
+  }
+</script>
+
 
   <header>
     <h1>Custos Carbon</h1>

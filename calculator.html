@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>碳足跡計算器</title>
 
-  <!-- 登入狀態檢查 -->
-  <script>
-    if (localStorage.getItem("isLoggedIn") !== "true") {
-      alert("請先登入才能使用碳足跡計算器");
-      window.location.href = "login.html";
-    }
-  </script>
+<!-- 登入狀態檢查 -->
+<script>
+  /**
+   * if (localStorage.getItem("isLoggedIn") !== "true") {
+   *   alert("請先登入才能使用碳足跡計算器");
+   *   window.location.href = "login.html";
+   * }
+   */
+
+  // ✅ 模擬自動登入（測試模式）
+  if (!localStorage.getItem("isLoggedIn")) {
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("username", "guest");
+    console.log("🔓 自動登入 guest 模式（碳足跡計算器）");
+  }
+</script>
+
 
   <script src="config.js"></script>
   <link rel="stylesheet" href="css/style.css">

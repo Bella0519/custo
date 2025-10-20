@@ -24,30 +24,40 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     return;
   }
 
+  /**
+   * 原始版本（呼叫後端登入 API）
+   * 已註解保留，方便日後要改回真實登入時使用。
+   *
+   * try {
+   *   const res = await fetch(`${API_BASE}/api/login`, {
+   *     method: "POST",
+   *     headers: { "Content-Type": "application/json" },
+   *     body: JSON.stringify({ username, password }),
+   *   });
+   *   const data = await res.json().catch(() => ({}));
+   *   if (res.ok) {
+   *     localStorage.setItem("isLoggedIn", "true");
+   *     localStorage.setItem("token", data.token);
+   *     localStorage.setItem("username", username);
+   *     alert("✅ 登入成功！");
+   *     window.location.href = "dashboard.html";
+   *   } else {
+   *     alert("❌ " + (data.message || "登入失敗，請檢查帳號密碼"));
+   *   }
+   * } catch (err) {
+   *   console.error("🚨 連線錯誤：", err);
+   *   alert("⚠ 系統錯誤，請稍後再試。");
+   * }
+   */
+
+  // ✅ 模擬登入成功（略過後端驗證）
   try {
-    // === 呼叫後端登入 API ===
-    const res = await fetch(`${API_BASE}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    // 避免非 JSON 回應導致報錯
-    const data = await res.json().catch(() => ({}));
-
-    if (res.ok) {
-      // ✅ 登入成功 → 存入 localStorage
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", username);
-
-      alert("✅ 登入成功！");
-      window.location.href = "dashboard.html"; // 跳轉到主頁面
-    } else {
-      alert("❌ " + (data.message || "登入失敗，請檢查帳號密碼"));
-    }
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("username", username || "guest");
+    alert("✅ 登入成功！（測試模式）");
+    window.location.href = "dashboard.html"; // 跳轉到主頁面
   } catch (err) {
-    console.error("🚨 連線錯誤：", err);
+    console.error("🚨 模擬登入錯誤：", err);
     alert("⚠ 系統錯誤，請稍後再試。");
   }
 });
