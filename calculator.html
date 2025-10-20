@@ -10,7 +10,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    /* 💡 關鍵字提示條 */
     .keyword-hint {
       background: #ffe5ec;
       color: #800f2f;
@@ -24,17 +23,9 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    /* 圓餅圖容器 */
-    #chart-container {
-      max-width: 400px;
-      margin: 20px auto;
-    }
-    canvas#carbonChart {
-      max-width: 100%;
-      max-height: 400px;
-    }
+    #chart-container { max-width: 400px; margin: 20px auto; }
+    canvas#carbonChart { max-width: 100%; max-height: 400px; }
 
-    /* 建議字串樣式 */
     .suggestions {
       border: 1px solid #ffd6e0;
       max-height: 150px;
@@ -47,15 +38,9 @@
       left: 0;
       display: none;
     }
-    .suggestions div {
-      padding: 5px;
-      cursor: pointer;
-    }
-    .suggestions div:hover {
-      background: #ffe5ec;
-    }
+    .suggestions div { padding: 5px; cursor: pointer; }
+    .suggestions div:hover { background: #ffe5ec; }
 
-    /* 按鈕樣式 */
     button {
       background: #ffd6e0;
       color: #333;
@@ -68,26 +53,12 @@
       transition: background 0.2s ease;
       font-weight: 500;
     }
-    button:hover {
-      background: #ffc2d1;
-    }
+    button:hover { background: #ffc2d1; }
 
-    .container {
-      text-align: center;
-      padding: 20px;
-    }
+    .container { text-align: center; padding: 20px; }
+    h1 { color: #800f2f; font-size: 28px; margin-bottom: 10px; }
+    p { color: #555; margin-bottom: 20px; }
 
-    h1 {
-      color: #800f2f;
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #555;
-      margin-bottom: 20px;
-    }
-
-    /* 推薦清單 */
     #recommendations {
       margin-top: 30px;
       text-align: left;
@@ -98,23 +69,9 @@
       border-radius: 10px;
       padding: 15px;
     }
-
-    #recommendations h3 {
-      color: #800f2f;
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    #recommendations ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    #recommendations li {
-      margin-bottom: 6px;
-      line-height: 1.5em;
-    }
-
+    #recommendations h3 { color: #800f2f; font-size: 18px; margin-bottom: 10px; }
+    #recommendations ul { list-style: none; padding: 0; }
+    #recommendations li { margin-bottom: 6px; line-height: 1.5em; }
   </style>
 </head>
 
@@ -123,12 +80,10 @@
     <h1>碳足跡計算器</h1>
     <p>輸入排放來源與數量，系統會自動計算碳足跡。</p>
 
-    <!-- 💡 提示條 -->
     <div class="keyword-hint">
       💡 可輸入關鍵字：<b>交通、能源、飲食、日常用品、步行、自行車</b>
     </div>
 
-    <!-- 🚗 一鍵加入按鈕 -->
     <div style="margin-bottom: 10px;">
       <button onclick="quickAdd('交通')">🚗 一鍵加入交通項目</button>
       <button onclick="quickAdd('飲食')">🍱 一鍵加入飲食項目</button>
@@ -136,27 +91,23 @@
       <button onclick="quickAdd('綠色出行')">🌿 一鍵加入綠色出行</button>
     </div>
 
-    <!-- 動態輸入列 -->
     <div id="customItems"></div>
     <button onclick="addCustom()">＋ 新增排放項目</button>
     <button onclick="clearAll()">🗑 清空所有</button>
 
     <hr>
 
-    <!-- 結果與圖表 -->
+    <section id="recommendations"></section>
+
     <p id="result"></p>
     <div id="chart-container">
       <canvas id="carbonChart"></canvas>
     </div>
 
-    <!-- 推薦清單 -->
-    <section id="recommendations"></section>
-
     <button id="downloadBtn" onclick="downloadPDF()">📄 匯出 PDF 報告</button>
   </div>
 
-  <!-- 載入順序：transport_factors.js → calculator.js -->
   <script src="js/transport_factors.js"></script>
-  <script src="js/calculator.js?v=30"></script>
+  <script src="js/calculator.js?v=61"></script>
 </body>
 </html>
