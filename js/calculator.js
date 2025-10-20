@@ -1,7 +1,6 @@
-// calculator.js
 // ====================================
-// 🌍 Custos Carbon 改良版碳足跡計算器
-// 功能：政府資料載入 + 交通建議 + 智能提示 + 快速新增
+// 🌍 Custos Carbon 碳足跡計算器進階版
+// 功能：政府資料載入 + 智能提示 + 一鍵新增分類 + 綠色出行
 // ====================================
 
 let emissionFactors = [];
@@ -17,48 +16,49 @@ if (!localStorage.getItem("isLoggedIn")) {
   console.log("🔓 自動登入 guest 模式");
 }
 
-// ✅ 載入政府開放資料
+// ✅ 載入政府開放資料（或本地 JSON）
 async function loadFactors() {
-  const apiURL = "https://data.moenv.gov.tw/api/v2/CFP_P_02?format=json";
+  const apiURL = "data/moenv_factors_full.json"; // ← 你的完整資料檔
+
   try {
     const res = await fetch(apiURL);
-    const data = await res.json();
-    emissionFactors = data.records.map(r => ({
-      name: r.name,
-      unit: r.unit,
-      factor: parseFloat(r.coe)
-    }));
-    console.log(`✅ 已載入政府資料，共 ${emissionFactors.length} 筆`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    emissionFactors = await res.json();
+    console.log(`✅ 已載入完整資料，共 ${emissionFactors.length} 筆`);
   } catch (err) {
     console.warn("⚠ 無法載入 API，使用預設資料");
     emissionFactors = [
       { name: "電力", unit: "kWh", factor: 0.509 },
       { name: "汽油", unit: "L", factor: 2.34 },
-      { name: "柴油", unit: "L", factor: 2.68 }
+      { name: "柴油", unit: "L", factor: 2.68 },
+      { name: "公車", unit: "km", factor: 0.089 },
+      { name: "捷運", unit: "km", factor: 0.05 }
     ];
   }
 
-  // ✅ 無論成功或失敗都加入交通建議資料
+  // 整合交通資料（若有 transport_factors.js）
   if (typeof customTransportFactors !== "undefined") {
     emissionFactors = emissionFactors.concat(customTransportFactors);
-    console.log("🚗 已整合交通運輸建議項目");
+    console.log("🚗 已整合交通運輸資料");
   }
 
   recommendItems();
   addCustom();
 }
 
-// ✅ 類別推薦項目
+// ✅ 系統推薦項目（交通、能源、出行）
 function recommendItems() {
   const categories = {
     "交通": ["公車", "捷運", "高鐵", "汽車", "機車", "飛機"],
-    "能源燃料": ["汽油", "柴油", "電力"],
+    "能源": ["電力", "天然氣", "柴油", "汽油"],
     "綠色出行": ["自行車", "步行"]
   };
 
   const recommendations = [];
   for (const [cat, keywords] of Object.entries(categories)) {
-    const matches = emissionFactors.filter(f => keywords.some(k => f.name.includes(k)));
+    const matches = emissionFactors.filter(f =>
+      keywords.some(k => f.name.includes(k))
+    );
     matches.forEach(m => recommendations.push({ category: cat, ...m }));
   }
 
@@ -66,10 +66,12 @@ function recommendItems() {
   section.innerHTML = `
     <h3>🌿 系統推薦排放項目（交通與能源）</h3>
     <ul>
-      ${recommendations.map(
-        r => `<li><b>${r.category}</b>：${r.name}（${r.unit}，係數 ${r.factor} kg CO₂e）
-        <br><small>資料來源：${r.source || "政府開放資料"}</small></li>`
-      ).join("")}
+      ${recommendations
+        .map(
+          r =>
+            `<li><b>${r.category}</b>：${r.name}（${r.unit}，係數 ${r.factor} kg CO₂e）</li>`
+        )
+        .join("")}
     </ul>
   `;
 }
@@ -96,7 +98,7 @@ function addCustom(selectedFactor = null) {
   div.querySelector(".custom-value").addEventListener("input", calculate);
 }
 
-// ✅ 搜尋提示邏輯
+// ✅ 智能提示搜尋
 function setupSearch(row) {
   const input = row.querySelector(".custom-keyword");
   const suggestions = row.querySelector(".suggestions");
@@ -117,15 +119,14 @@ function setupSearch(row) {
   });
 }
 
-// ✅ 智能提示強化版
+// ✅ 顯示建議字詞（含模糊匹配）
 function showSuggestions(row, keyword) {
   const suggestions = row.querySelector(".suggestions");
   suggestions.innerHTML = "";
 
-  // 🚀 關聯字詞擴充（模糊匹配）
   const related = {
     "交通": ["公車", "捷運", "高鐵", "汽車", "機車", "飛機"],
-    "能源": ["電力", "汽油", "柴油"],
+    "能源": ["電力", "汽油", "柴油", "天然氣"],
     "出行": ["自行車", "步行"]
   };
 
@@ -157,7 +158,7 @@ function showSuggestions(row, keyword) {
   suggestions.style.display = "block";
 }
 
-// ✅ 計算總碳排
+// ✅ 總碳排計算
 function calculate() {
   lastLabels = [];
   lastValues = [];
@@ -204,20 +205,32 @@ function drawChart(labels, values) {
   });
 }
 
-// ✅ 快速新增類別
+// ✅ 一鍵新增分類
 function quickAdd(category) {
   let items = [];
+
   if (category === "交通") {
-    items = ["捷運／地鐵", "公車（大眾運輸）", "自用小客車（汽油）", "機車", "高鐵", "飛機（客運）"];
+    items = ["捷運", "公車", "自用汽車", "機車", "高鐵", "飛機"];
   } else if (category === "飲食") {
-    items = ["牛肉", "豬肉", "白飯", "飲料"];
+    items = ["牛肉", "豬肉", "白飯", "豆腐", "瓶裝水"];
   } else if (category === "用電") {
-    items = ["電力"];
+    items = ["電力", "天然氣", "柴油"];
+  } else if (category === "綠色出行") {
+    items = ["自行車", "步行"];
   }
+
   items.forEach(name => {
     const factorData = emissionFactors.find(f => f.name.includes(name));
-    if (factorData) addCustom(factorData);
+    if (factorData) {
+      addCustom(factorData);
+    } else {
+      // 若找不到項目但為綠色出行，顯示特別提示
+      if (category === "綠色出行") {
+        addCustom({ name, unit: "km", factor: 0 });
+      }
+    }
   });
+
   alert(`✅ 已新增「${category}」類別常見項目！`);
 }
 
@@ -238,5 +251,5 @@ async function downloadPDF() {
   pdf.save("碳足跡報告.pdf");
 }
 
-// ✅ 啟動初始化
+// ✅ 初始化
 loadFactors();
